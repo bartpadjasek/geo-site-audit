@@ -1,6 +1,12 @@
 # geo-site-audit
 
-> **⚠️ Use at your own risk.** This project is ~99% vibe coded. It works for its intended purpose but is not actively maintained — don't expect regular updates or production-grade polish.
+Hey — I'm not a developer, so fair warning upfront: this is something I vibe coded for a work project and decided to share because a few people asked.
+
+The idea was simple: I wanted something that would automatically scrape our own website every week, flag SEO and GEO issues, and show us how often we're being recommended by AI tools compared to our competitors. It scratches that itch pretty well. Whether it'll work perfectly for your setup — no idea, but good luck.
+
+I won't be updating this regularly. We run a private version internally, and if we make big improvements there I may eventually bring them over here. No promises though.
+
+---
 
 Automated SEO, GEO, and content audit for any website. Configured here as an example using [oatly.com](https://www.oatly.com).
 
