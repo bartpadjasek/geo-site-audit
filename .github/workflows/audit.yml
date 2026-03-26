@@ -32,11 +32,13 @@ jobs:
 
       - name: Create config
         run: >
-          echo '{"site_url":"https://www.oatly.com","firecrawl_api_key":"${{ secrets.FIRECRAWL_API_KEY }}","psi_api_key":"${{ secrets.PSI_API_KEY }}","wait_for_ms":2000,"max_age_ms":86400000,"scrape_proxy":"enhanced","link_check_timeout_s":10,"link_check_max_external":50}'
+          echo '{"site_url":"https://www.oatly.com","wait_for_ms":2000,"max_age_ms":86400000,"scrape_proxy":"enhanced","link_check_timeout_s":10,"link_check_max_external":50}'
           > _system/config.json
 
       - name: Run audit
         env:
+          FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
+          PSI_API_KEY: ${{ secrets.PSI_API_KEY }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         run: python3 _system/audit.py --no-push
 
@@ -51,17 +53,22 @@ jobs:
           # when data.json is large and base64 content is passed as a shell arg.
 
           python3 - <<'PYEOF'
-          import base64, json, os, subprocess, sys
+          import base64, json, os, subprocess, sys, tempfile
           from datetime import datetime, timezone
 
           repo  = os.environ["REPO"]
           date  = datetime.now(timezone.utc).strftime("%Y-%m-%d")
           token = os.environ["GH_TOKEN"]
 
+          # Validate repo format to prevent injection
+          import re
+          if not re.fullmatch(r"[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+", repo):
+              print(f"ERROR: unexpected REPO format: {repo}")
+              sys.exit(1)
+
           def push_file(local_path, repo_path, message):
               with open(local_path, "rb") as f:
                   content = base64.b64encode(f.read()).decode()
-              # Get current SHA if file exists
               r = subprocess.run(
                   ["gh", "api", f"/repos/{repo}/contents/{repo_path}", "--jq", ".sha"],
                   capture_output=True, text=True
@@ -70,16 +77,20 @@ jobs:
               payload = {"message": message, "content": content}
               if sha:
                   payload["sha"] = sha
-              with open("/tmp/gh_payload.json", "w") as f:
-                  json.dump(payload, f)
-              result = subprocess.run(
-                  ["gh", "api", "--method", "PUT",
-                   f"/repos/{repo}/contents/{repo_path}",
-                   "--input", "/tmp/gh_payload.json"],
-                  capture_output=True, text=True
-              )
+              with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as tmp:
+                  json.dump(payload, tmp)
+                  tmp_path = tmp.name
+              try:
+                  result = subprocess.run(
+                      ["gh", "api", "--method", "PUT",
+                       f"/repos/{repo}/contents/{repo_path}",
+                       "--input", tmp_path],
+                      capture_output=True, text=True
+                  )
+              finally:
+                  os.unlink(tmp_path)
               if result.returncode != 0:
-                  print(f"ERROR pushing {repo_path}: {result.stderr}")
+                  print(f"ERROR pushing {repo_path}")
                   sys.exit(1)
               print(f"Pushed {repo_path}")
 

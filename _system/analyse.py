@@ -6,6 +6,7 @@ Usage:
 Output: writes audit.json to own-site/snapshots/latest_audit.json
 """
 
+import ipaddress
 import json
 import os
 import re
@@ -22,7 +23,31 @@ SITE_DIR = SYSTEM_DIR.parent
 PAGES_PATH = SYSTEM_DIR / "pages.json"
 CONFIG_PATH = SYSTEM_DIR / "config.json"
 
-SITE_HOST = "www.oatly.com"
+# Loaded from config at runtime in main()
+SITE_HOST = None
+
+# Private/reserved IP ranges to block in link checker (SSRF protection)
+_PRIVATE_NETWORKS = [
+    ipaddress.ip_network("10.0.0.0/8"),
+    ipaddress.ip_network("172.16.0.0/12"),
+    ipaddress.ip_network("192.168.0.0/16"),
+    ipaddress.ip_network("127.0.0.0/8"),
+    ipaddress.ip_network("169.254.0.0/16"),
+    ipaddress.ip_network("::1/128"),
+    ipaddress.ip_network("fc00::/7"),
+]
+
+
+def _is_private_url(url: str) -> bool:
+    """Return True if the URL resolves to a private/reserved IP address."""
+    try:
+        host = urlparse(url).hostname
+        if not host:
+            return True
+        addr = ipaddress.ip_address(socket.gethostbyname(host))
+        return any(addr in net for net in _PRIVATE_NETWORKS)
+    except Exception:
+        return False
 
 # ── SEO issue definitions ─────────────────────────────────────────────────────
 
@@ -177,14 +202,16 @@ def extract_links(pages: list) -> dict:
 
 def check_url(url: str, timeout: int = 10) -> dict:
     """HEAD-check a URL, return status code and whether it's broken."""
+    if _is_private_url(url):
+        return {"status": None, "broken": False, "skipped": "private-ip"}
     try:
-        req = urllib.request.Request(url, method="HEAD", headers={"User-Agent": "GetWhy-SiteAudit/1.0"})
+        req = urllib.request.Request(url, method="HEAD", headers={"User-Agent": "geo-site-audit/1.0"})
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             return {"status": resp.status, "broken": resp.status >= 400}
     except urllib.error.HTTPError as e:
         return {"status": e.code, "broken": e.code >= 400}
     except (urllib.error.URLError, socket.timeout, Exception) as e:
-        return {"status": None, "broken": True, "error": str(e)}
+        return {"status": None, "broken": True, "error": "request failed"}
 
 
 def check_broken_links(links_map: dict, max_external: int = 50, timeout: int = 10) -> list:
@@ -245,16 +272,18 @@ def load_ai_visibility_rate() -> tuple:
 def fetch_cwv(url: str, psi_key: str = None) -> dict:
     """Call PageSpeed Insights API (mobile) and return Core Web Vitals."""
     from urllib.parse import urlencode
+    # PSI requires the key as a query param — this is the only supported auth method.
+    # The URL is never logged; only errors are surfaced.
     params = {"url": url, "strategy": "mobile"}
     if psi_key:
         params["key"] = psi_key
     api_url = "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?" + urlencode(params)
     try:
-        req = urllib.request.Request(api_url, headers={"User-Agent": "GetWhy-SiteAudit/1.0"})
+        req = urllib.request.Request(api_url, headers={"User-Agent": "geo-site-audit/1.0"})
         with urllib.request.urlopen(req, timeout=30) as resp:
             data = json.loads(resp.read())
-    except Exception as e:
-        return {"error": str(e)}
+    except Exception:
+        return {"error": "PSI request failed"}
 
     result = {}
     lhr = data.get("lighthouseResult", {})
@@ -324,9 +353,11 @@ def audit_cwv(cwv: dict) -> list:
 
 
 def main():
+    global SITE_HOST
     config = load_config()
     pages_config = load_pages_config()
     psi_key = os.environ.get("PSI_API_KEY") or config.get("psi_api_key")
+    SITE_HOST = urlparse(config.get("site_url", "")).hostname or "localhost"
     snapshot = get_latest_snapshot()
 
     if not snapshot:

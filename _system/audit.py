@@ -154,13 +154,13 @@ def audit_site(config: dict, pages_config: dict):
             results.append(entry)
             print(" ✓")
         except Exception as e:
-            print(f" ✗ ({e})")
+            print(f" ✗ (scrape failed)")
             results.append({
                 "url": url,
                 "label": label,
                 "category": category,
                 "scraped_at": datetime.now(timezone.utc).isoformat(),
-                "error": str(e),
+                "error": "scrape failed",
                 "data": None,
             })
 

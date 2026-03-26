@@ -46,12 +46,10 @@ cd geo-site-audit
 
 ### Step 2 — Configure your brand
 
-**`_system/config.json`** — set your site URL and API keys:
+**`_system/config.json`** — set your site URL (no API keys here — pass those as environment variables):
 ```json
 {
   "site_url": "https://www.yourbrand.com",
-  "firecrawl_api_key": "fc-...",
-  "psi_api_key": "AIza...",
   "wait_for_ms": 2000,
   "max_age_ms": 86400000,
   "scrape_proxy": "enhanced",
@@ -109,8 +107,10 @@ npm install
 ### Step 4 — Run the audit
 
 ```bash
-OPENROUTER_API_KEY=sk-or-... python3 _system/audit.py --no-push
+FIRECRAWL_API_KEY=fc-... OPENROUTER_API_KEY=sk-or-... PSI_API_KEY=AIza... python3 _system/audit.py --no-push
 ```
+
+All API keys are passed as environment variables — never put them in `config.json`.
 
 This will:
 1. Scrape all pages via Firecrawl
