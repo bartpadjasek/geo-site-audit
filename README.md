@@ -1,8 +1,8 @@
 # geo-site-audit
 
-Hey — I'm not a developer, so fair warning upfront: this is something I vibe coded for a work project and decided to share because a few people asked.
+Hey! I'm not a developer, so fair warning upfront: this is something I vibe coded for a work project and decided to share because a few people asked.
 
-The idea was simple: I wanted something that would automatically scrape our own website every week, flag SEO and GEO issues, and show us how often we're being recommended by AI tools compared to our competitors. It scratches that itch pretty well. Whether it'll work perfectly for your setup — no idea, but good luck.
+The idea was simple: I wanted something that would automatically scrape our own website every week, flag SEO and GEO issues, and show us how often we're being recommended by AI tools compared to our competitors. It scratches that itch pretty well. Whether it'll work perfectly for your setup.... no idea, but good luck!
 
 I won't be updating this regularly. We run a private version internally, and if we make big improvements there I may eventually bring them over here. No promises though.
 
