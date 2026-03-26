@@ -1,0 +1,88 @@
+name: Site Audit
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+concurrency:
+  group: site-audit
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install firecrawl-py openai
+
+      - name: Create config
+        run: >
+          echo '{"site_url":"https://www.oatly.com","firecrawl_api_key":"${{ secrets.FIRECRAWL_API_KEY }}","psi_api_key":"${{ secrets.PSI_API_KEY }}","wait_for_ms":2000,"max_age_ms":86400000,"scrape_proxy":"enhanced","link_check_timeout_s":10,"link_check_max_external":50}'
+          > _system/config.json
+
+      - name: Run audit
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: python3 _system/audit.py --no-push
+
+      - name: Push report
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          DATE=$(date -u +%Y-%m-%d)
+
+          # Use Python to build JSON payloads — avoids "Argument list too long"
+          # when data.json is large and base64 content is passed as a shell arg.
+
+          python3 - <<'PYEOF'
+          import base64, json, os, subprocess, sys
+          from datetime import datetime, timezone
+
+          repo  = os.environ["REPO"]
+          date  = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+          token = os.environ["GH_TOKEN"]
+
+          def push_file(local_path, repo_path, message):
+              with open(local_path, "rb") as f:
+                  content = base64.b64encode(f.read()).decode()
+              # Get current SHA if file exists
+              r = subprocess.run(
+                  ["gh", "api", f"/repos/{repo}/contents/{repo_path}", "--jq", ".sha"],
+                  capture_output=True, text=True
+              )
+              sha = r.stdout.strip() if r.returncode == 0 else ""
+              payload = {"message": message, "content": content}
+              if sha:
+                  payload["sha"] = sha
+              with open("/tmp/gh_payload.json", "w") as f:
+                  json.dump(payload, f)
+              result = subprocess.run(
+                  ["gh", "api", "--method", "PUT",
+                   f"/repos/{repo}/contents/{repo_path}",
+                   "--input", "/tmp/gh_payload.json"],
+                  capture_output=True, text=True
+              )
+              if result.returncode != 0:
+                  print(f"ERROR pushing {repo_path}: {result.stderr}")
+                  sys.exit(1)
+              print(f"Pushed {repo_path}")
+
+          push_file("public/data.json", "public/data.json", f"report: site audit {date}")
+          push_file("_system/ai_visibility.json", "_system/ai_visibility.json", f"chore: AI visibility history {date}")
+          PYEOF

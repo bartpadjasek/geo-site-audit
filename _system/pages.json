@@ -1,0 +1,18 @@
+{
+  "pages": [
+    { "url": "https://www.oatly.com", "label": "Homepage", "category": "core" },
+    { "url": "https://www.oatly.com/products", "label": "Products", "category": "core" },
+    { "url": "https://www.oatly.com/sustainability", "label": "Sustainability", "category": "core" },
+    { "url": "https://www.oatly.com/about-oatly", "label": "About", "category": "core" },
+    { "url": "https://www.oatly.com/barista-edition", "label": "Barista Edition", "category": "landing" },
+    { "url": "https://www.oatly.com/stories", "label": "Stories", "category": "content" },
+    { "url": "https://www.oatly.com/ingredients", "label": "Ingredients", "category": "trust" },
+    { "url": "https://www.oatly.com/contact", "label": "Contact", "category": "conversion" }
+  ],
+  "known_gaps": [
+    { "url": "/where-to-buy", "label": "Where to Buy", "reason": "High-intent page missing — consumers frequently search for stockists" },
+    { "url": "/recipes", "label": "Recipes", "reason": "Content opportunity — drives organic traffic and showcases product use cases" },
+    { "url": "/faq", "label": "FAQ", "reason": "GEO opportunity — structured Q&A content improves AI answer inclusion" },
+    { "url": "/nutrition", "label": "Nutrition & Health", "reason": "High-intent search topic missing a dedicated page" }
+  ]
+}

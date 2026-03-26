@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+
+:root {
+  --burgundy: #47072C;
+  --burgundy-light: #6B0F3E;
+  --fuchsia: #FA1E81;
+  --fuchsia-light: #FFC1E8;
+  --beige: #EEE6DD;
+  --beige-light: #F7F3EF;
+  --beige-dark: #E6D9CC;
+  --teal: #5B7979;
+  --teal-light: #91A5A5;
+  --black: #232323;
+}
+
+body {
+  background-color: var(--beige-light);
+  color: var(--black);
+}

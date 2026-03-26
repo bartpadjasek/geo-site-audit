@@ -1,0 +1,15 @@
+# Dependencies
+node_modules/
+.next/
+
+# Generated audit data — these are written by the pipeline at runtime
+snapshots/
+_system/ai_visibility.json
+_system/ai_insights.json
+public/data.json
+
+# Local config (contains API keys — never commit)
+_system/config.json
+
+# macOS
+.DS_Store
