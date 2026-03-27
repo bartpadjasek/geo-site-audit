@@ -10,7 +10,7 @@ I won't be updating this regularly. We run a private version internally, and if 
 
 Automated SEO, GEO, and content audit for any website. Configured here as an example using [oatly.com](https://www.oatly.com).
 
-Runs every Monday at 6am UTC. Scrapes the site, checks whether the brand is recommended by 6 LLMs (GPT-4o, Gemini 2.5 Flash, Claude Sonnet, Perplexity Sonar, Llama 4 Maverick, Mistral Large), analyses SEO issues and Core Web Vitals, generates AI insights, and publishes an updated report.
+Runs every Monday at 6am UTC. Scrapes the site, checks whether the brand is recommended by 6 LLMs (GPT-4o, Gemini 2.5 Flash, Claude Sonnet, Perplexity Sonar, Llama 4 Maverick, Mistral Large), tags when your competitors are mentioned in those LLMs, analyses SEO issues and Core Web Vitals, generates AI insights, and publishes an updated report.
 
 ## What it audits
 
