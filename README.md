@@ -1,4 +1,4 @@
-# geo-site-audit
+# SEO & GEO Site Audit
 
 Hey! I'm not a developer, so fair warning upfront: this is something I vibe coded for a work project and decided to share because a few people asked.
 
