@@ -144,10 +144,13 @@ Open [http://localhost:3000](http://localhost:3000) in your browser. That's it.
 | `PSI_API_KEY` | Core Web Vitals |
 
 4. The workflow in .github/workflows/audit.yml is set to manual-only — trigger it from the Actions tab whenever you want to run an audit. We recommend running it once a week. To automate it, add a schedule to the workflow:
- ▎ on:                                                                                   
-  ▎   schedule:                                         
-  ▎     - cron: '0 6 * * 1'  # Every Monday at 6am UTC
-  ▎   workflow_dispatch:                              
+   
+  ```bash                                                                                 
+  on:                                                                                     
+    schedule:                                                                             
+      - cron: '0 6 * * 1'  # Every Monday at 6am UTC        
+    workflow_dispatch:                                                                    
+  ```
 
 ### Option B — Run locally on a schedule
 
