@@ -26,11 +26,8 @@ def load_json(path: Path) -> dict:
 
 def load_previous_scores(output_path: Path) -> dict:
     """Read scores from the existing report before overwriting it."""
-    if not output_path.exists():
-        return {}
     try:
-        with open(output_path) as f:
-            existing = json.load(f)
+        existing = load_json(output_path)
         scores = existing.get("scores", {})
         # Only keep the top-level numeric scores, not geo_detail
         return {k: v for k, v in scores.items() if k != "geo_detail" and isinstance(v, (int, float))}
@@ -68,7 +65,6 @@ def main():
             "seo_technical": ai.get("seo_technical", []),
             "seo_onpage": ai.get("seo_onpage", []),
             "seo_backlinks_keywords": ai.get("seo_backlinks_keywords", []),
-            "seo_priorities": ai.get("seo_priorities", []),  # legacy fallback
             "geo_opportunities": ai.get("geo_opportunities", []),
             "content_gaps": ai.get("content_gaps", []),
             "quick_wins": ai.get("quick_wins", []),

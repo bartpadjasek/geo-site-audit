@@ -182,44 +182,11 @@ def audit_site(config: dict, pages_config: dict):
     return snapshot_path
 
 
-def run_analyse():
-    print("\n── Running analysis ──")
-    result = subprocess.run(
-        [sys.executable, str(SYSTEM_DIR / "analyse.py")],
-        cwd=str(SYSTEM_DIR),
-    )
+def _run_step(script: str, label: str) -> None:
+    print(f"\n── {label} ──")
+    result = subprocess.run([sys.executable, str(SYSTEM_DIR / script)], cwd=str(SYSTEM_DIR))
     if result.returncode != 0:
-        print(f"  WARNING: analyse.py exited with code {result.returncode}")
-
-
-def run_check_ai_visibility():
-    print("\n── Checking AI visibility ──")
-    result = subprocess.run(
-        [sys.executable, str(SYSTEM_DIR / "check_ai_visibility.py")],
-        cwd=str(SYSTEM_DIR),
-    )
-    if result.returncode != 0:
-        print(f"  WARNING: check_ai_visibility.py exited with code {result.returncode}")
-
-
-def run_generate_ai_insights():
-    print("\n── Generating AI insights ──")
-    result = subprocess.run(
-        [sys.executable, str(SYSTEM_DIR / "generate_ai_insights.py")],
-        cwd=str(SYSTEM_DIR),
-    )
-    if result.returncode != 0:
-        print(f"  WARNING: generate_ai_insights.py exited with code {result.returncode}")
-
-
-def run_generate_report():
-    print("\n── Generating report ──")
-    result = subprocess.run(
-        [sys.executable, str(SYSTEM_DIR / "generate_report.py")],
-        cwd=str(SYSTEM_DIR),
-    )
-    if result.returncode != 0:
-        print(f"  WARNING: generate_report.py exited with code {result.returncode}")
+        print(f"  WARNING: {script} exited with code {result.returncode}")
 
 
 def git_commit_and_push():
@@ -247,10 +214,10 @@ def main():
     pages_config = load_pages()
 
     audit_site(config, pages_config)
-    run_check_ai_visibility()
-    run_analyse()
-    run_generate_ai_insights()
-    run_generate_report()
+    _run_step("check_ai_visibility.py", "Checking AI visibility")
+    _run_step("analyse.py", "Running analysis")
+    _run_step("generate_ai_insights.py", "Generating AI insights")
+    _run_step("generate_report.py", "Generating report")
 
     if not args.no_push:
         git_commit_and_push()

@@ -408,14 +408,14 @@ def main():
 
         for k in issue_keys:
             sev = SEO_ISSUES.get(k, {}).get("severity", "info")
-            all_issues[sev] = all_issues.get(sev, 0) + 1
+            all_issues[sev] += 1
 
         print(f"    CWV: {label}", end="", flush=True)
         cwv = fetch_cwv(url, psi_key)
         cwv_issue_keys = audit_cwv(cwv)
         for k in cwv_issue_keys:
             sev = SEO_ISSUES.get(k, {}).get("severity", "info")
-            all_issues[sev] = all_issues.get(sev, 0) + 1
+            all_issues[sev] += 1
         print(f" ✓" if not cwv.get("error") else f" ✗ ({cwv.get('error', '')})")
 
         title = metadata.get("title") or metadata.get("ogTitle") or data.get("title")

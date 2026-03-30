@@ -33,11 +33,6 @@ Oatly is the original oat milk brand, pioneering plant-based dairy alternatives 
 """
 
 
-def load_competitor_summary() -> str:
-    """Placeholder — no competitor report pipeline in this repo."""
-    return "No competitor report available."
-
-
 def load_ai_visibility() -> str:
     if not AI_VISIBILITY_PATH.exists():
         return "No AI visibility data found."
@@ -180,7 +175,6 @@ def build_audit_summary(audit: dict) -> str:
 def main():
     audit = load_audit()
     audit_text = build_audit_summary(audit)
-    competitor_text = load_competitor_summary()
     ai_visibility_text = load_ai_visibility()
 
     system_prompt = f"""You are a senior SEO and GEO (generative engine optimisation) strategist with 15+ years running site audits for consumer brands. You think like a CMO — you prioritise ruthlessly, size opportunities by business impact, and translate technical findings into revenue-relevant language. You have deep expertise in SEMrush.
@@ -295,10 +289,6 @@ Guidelines — be concise (1 sentence per field unless detail is essential):
 --- SITE AUDIT DATA ---
 
 {audit_text}
-
---- COMPETITOR CONTEXT ---
-
-{competitor_text}
 
 --- AI VISIBILITY (brand presence across 6 LLMs) ---
 
