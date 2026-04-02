@@ -4,7 +4,7 @@ Hey! I'm not a developer, so fair warning upfront: this is something I vibe code
 
 The idea was simple: I wanted something that would automatically scrape our own website every week, flag SEO and GEO issues, and show us how often we're being recommended by AI tools compared to our competitors. It scratches that itch pretty well. Whether it'll work perfectly for your setup.... no idea, but good luck!
 
-I won't be updating this regularly. We run a private version internally, and if we make big improvements there I may eventually bring them over here. No promises though.
+This was made 99% with Claude in order to teach myself how to create a project like this and update it. We run a private version internally, and if we make big improvements there I may eventually bring them over here. No promises though.
 
 ---
 
@@ -52,7 +52,7 @@ cd geo-site-audit
   "site_url": "https://www.yourbrand.com",
   "wait_for_ms": 2000,
   "max_age_ms": 86400000,
-  "scrape_proxy": "enhanced",
+  "scrape_proxy": "auto",
   "link_check_timeout_s": 10,
   "link_check_max_external": 50
 }
@@ -107,7 +107,7 @@ npm install
 ### Step 4 — Run the audit
 
 ```bash
-FIRECRAWL_API_KEY=fc-... OPENROUTER_API_KEY=sk-or-... PSI_API_KEY=AIza... python3 _system/audit.py --no-push
+FIRECRAWL_API_KEY=... OPENROUTER_API_KEY=... PSI_API_KEY=... python3 _system/audit.py --no-push
 ```
 
 All API keys are passed as environment variables — never put them in `config.json`.
@@ -158,7 +158,7 @@ If you don't want to use Vercel, you can run the audit manually whenever you wan
 
 ```bash
 # Run the audit
-OPENROUTER_API_KEY=sk-or-... python3 _system/audit.py --no-push
+OPENROUTER_API_KEY=... python3 _system/audit.py --no-push
 
 # View the report
 npm run dev
@@ -167,7 +167,7 @@ npm run dev
 Or set up a cron job to run it automatically:
 ```bash
 # Run every Monday at 6am (add to crontab -e)
-0 6 * * 1 cd /path/to/geo-site-audit && OPENROUTER_API_KEY=sk-or-... FIRECRAWL_API_KEY=fc-... python3 _system/audit.py --no-push
+0 6 * * 1 cd /path/to/geo-site-audit && OPENROUTER_API_KEY=... FIRECRAWL_API_KEY=... python3 _system/audit.py --no-push
 ```
 
 ---
@@ -210,4 +210,4 @@ audit.py → check_ai_visibility.py → analyse.py → generate_ai_insights.py �
 GEO score = (avg AI mention rate × 0.65) + (content quality score × 0.35)
 ```
 
-AI mention rate = average across all 6 models of (queries where the brand was mentioned / 7 total queries).
+AI mention rate = average across all 6 models of (queries where the brand was mentioned / 7 total queries). You may update the scoring system as you see fit, but I always recommend a much higher emphasis on AI mention rate as it's currently very easy to get a high content quality score if you follow simple best practices.
